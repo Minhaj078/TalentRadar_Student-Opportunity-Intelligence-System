@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1 class="page-title">Student Profile</h1>
+
+<div class="dashboard-container">
+    <div class="card">
+        <h3>Edit Academic Details</h3>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Save Profile</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'base.html' %} {% block content %}
+
+<h1 class="page-title">InCoScore Leaderboard</h1>
+
+<div class="dashboard-container">
+  {% for p in profiles %}
+
+  <div class="leader-card">
+
+        <h3>
+            {% if forloop.counter == 1 %}
+                🥇
+            {% elif forloop.counter == 2 %}
+                🥈
+            {% elif forloop.counter == 3 %}
+                🥉
+            {% else %}
+                🎖
+            {% endif %}
+            Rank {{ forloop.counter }} — {{ p.user.username }}
+        </h3>
+
+    <p><strong>Total Score:</strong> {{ p.calculate_score }}</p>
+
+    <div class="score-breakdown">
+      <p>Hackathons: {{ p.hackathons }}</p>
+      <div class="progress">
+        <div
+          class="progress-fill"
+          style="--target-width: {{ p.hackathons|floatformat:0 }}0%;"
+        ></div>
+      </div>
+
+      <p>Internships: {{ p.internships }}</p>
+      <div class="progress">
+        <div
+          class="progress-fill"
+          style="--target-width: {{ p.hackathons|floatformat:0 }}0%;"
+        ></div>
+      </div>
+
+      <p>Research Papers: {{ p.research_papers }}</p>
+      <div class="progress">
+        <div
+          class="progress-fill"
+          style="--target-width: {{ p.hackathons|floatformat:0 }}0%;"
+        ></div> 
+      </div>
+
+      <p>Coding Rating: {{ p.coding_rating }}</p>
+      <div class="progress">
+        <div
+          class="progress-fill"
+          style="--target-width: {{ p.hackathons|floatformat:0 }}0%;"
+        ></div>
+      </div>
+    </div>
+  </div>
+
+  {% endfor %}
+</div>
+
+{% endblock %}

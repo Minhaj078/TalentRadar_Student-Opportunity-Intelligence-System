@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1 class="page-title">Opportunity Dashboard</h1>
+
+<!-- Stats Section -->
+<div class="stats">
+    <h2>🌍 Total Opportunities: {{ total_count }}</h2>
+    <p>🎓 Universities Covered: {{ total_universities }}</p>
+</div>
+
+<!-- Filter Section -->
+<div class="filter-section">
+    <form method="get">
+        <select name="domain">
+            <option value="">All Domains</option>
+            <option value="AI">AI</option>
+            <option value="Law">Law</option>
+            <option value="Engineering">Engineering</option>
+            <option value="General">General</option>
+        </select>
+        <button type="submit">Filter</button>
+    </form>
+</div>
+
+<!-- Opportunity Cards -->
+<div class="dashboard-container">
+    {% for opp in opportunities %}
+        <div class="card">
+            <h3>{{ opp.title }}</h3>
+            <p><strong>University:</strong> {{ opp.university }}</p>
+            <p>{{ opp.description }}</p>
+            <a href="{% url 'apply_opportunity' opp.id %}">Apply</a>
+        </div>
+    {% empty %}
+        <p style="text-align:center;">No opportunities available.</p>
+    {% endfor %}
+</div>
+
+<div style="text-align:center; margin: 30px;">
+    <a href="/leaderboard/">View Leaderboard →</a>
+</div>
+
+{% endblock %}
