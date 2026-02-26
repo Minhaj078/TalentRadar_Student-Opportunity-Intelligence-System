@@ -203,6 +203,20 @@ Please ensure your code follows PEP 8 style guidelines and includes appropriate 
 
 ---
 
+## 📸 Application Snapshots
+
+### 🏠 Dashboard
+![Dashboard](SnapShots/TalentRadar_Dashboard.png)
+
+---
+
+### 📊 AI Analytics
+![AI Analytics](SnapShots/InCoScore%20Leaderboard.png)
+
+---
+
+
+
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute this software with attribution.
