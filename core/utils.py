@@ -1,81 +1,41 @@
-import requests
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 from .models import Opportunity
+import time
+from webdriver_manager.chrome import ChromeDriverManager
+
 
 UNIVERSITIES = {
     "Harvard": "https://careerservices.fas.harvard.edu/channels/internships/",
-    "Stanford": "https://studentaffairs.stanford.edu/opportunities",
-    "Princeton": "https://careerdevelopment.princeton.edu/students/internships",
-    "Columbia": "https://careerservices.columbia.edu/resources/internships",
-    "Yale": "https://ocs.yale.edu/channels/internships/",
+    "Stanford": "https://careercenter.umich.edu/content/internships",
     "MIT": "https://capd.mit.edu/jobs-internships/",
-    "Cornell": "https://career.cornell.edu/resources/internships",
-    "Brown": "https://careers.brown.edu/channels/internships/",
-    "Dartmouth": "https://students.dartmouth.edu/ugar/careers/internships",
-    "UPenn": "https://careerservices.upenn.edu/preparing-for-internships/",
-    "Caltech": "https://career.caltech.edu/opportunities",
-    "Duke": "https://careerhub.students.duke.edu/channels/internships/",
-    "UCLA": "https://career.ucla.edu/resources/internships/",
-    "Berkeley": "https://career.berkeley.edu/internships",
     "Oxford": "https://www.careers.ox.ac.uk/internships",
-    "Cambridge": "https://www.careers.cam.ac.uk/internships",
-    "Chicago": "https://careeradvancement.uchicago.edu/channels/internships/",
-    "NYU": "https://www.nyu.edu/students/student-information-and-resources/career-development-and-jobs.html",
-    "GeorgiaTech": "https://career.gatech.edu/students/internships-co-ops",
-    "Michigan": "https://careercenter.umich.edu/content/internships",
-    "Toronto": "https://studentlife.utoronto.ca/task/internships/",
-    "CarnegieMellon": "https://www.cmu.edu/career/students-and-alumni/find-a-job-or-internship/index.html",
-    "JohnsHopkins": "https://studentaffairs.jhu.edu/careers/students/internships/",
-    "USC": "https://careers.usc.edu/students/find-an-internship/",
-    "Northwestern": "https://www.northwestern.edu/careers/students/find-jobs-internships/"
 }
 
-import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-# def real_scraper():
-#     for uni_name, url in UNIVERSITIES.items():
-#         try:
-#             response = requests.get(
-#                 url,
-#                 timeout=10,
-#                 verify=False,
-#                 headers={"User-Agent": "Mozilla/5.0"}
-#             )
-
-#             soup = BeautifulSoup(response.text, "html.parser")
-#             headlines = soup.find_all("h2")[:3]
-
-#             for h in headlines:
-#                 title = h.get_text(strip=True)
-
-#                 if title and not Opportunity.objects.filter(title=title).exists():
-#                     domain = classify_domain(title)
-
-#                     Opportunity.objects.create(
-#                         title=title,
-#                         university=uni_name,
-#                         description=f"Latest update from {uni_name}",
-#                         domain=domain,
-#                         link=url
-#                     )
-
-#         except Exception as e:
-#             print(f"Skipping {uni_name}: {e}")
-#             continue
 
 def real_scraper():
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")  # Run without opening browser
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")
+
+    service = Service("chromedriver.exe")  # Make sure driver exists
+    driver = webdriver.Chrome(
+    service=Service(ChromeDriverManager().install()),
+    options=chrome_options
+    )
+
     for uni_name, url in UNIVERSITIES.items():
         try:
-            response = requests.get(
-                url,
-                timeout=10,
-                verify=False,
-                headers={"User-Agent": "Mozilla/5.0"}
-            )
+            driver.get(url)
+            time.sleep(3)  # wait for JS content to load
 
-            soup = BeautifulSoup(response.text, "html.parser")
-            headlines = soup.find_all("h2")[:3]
+            soup = BeautifulSoup(driver.page_source, "html.parser")
+
+            headlines = soup.find_all("h2")[:5]
 
             for h in headlines:
                 title = h.get_text(strip=True)
@@ -83,20 +43,23 @@ def real_scraper():
                 if title and not Opportunity.objects.filter(title=title).exists():
 
                     domain = classify_domain(title)
-                    type_value = classify_type(title)   # 👈 IMPORTANT
+                    type_value = classify_type(title)
 
                     Opportunity.objects.create(
                         title=title,
-                        university=uni_name,
-                        description=f"Latest update from {uni_name}",
+                        organization=uni_name,
+                        source=uni_name,
+                        description=f"Opportunity from {uni_name}",
                         domain=domain,
-                        type=type_value,               # 👈 IMPORTANT
+                        type=type_value,
                         link=url
                     )
 
         except Exception as e:
             print(f"Skipping {uni_name}: {e}")
             continue
+
+    driver.quit()
 
 
 def classify_domain(title):
@@ -108,9 +71,12 @@ def classify_domain(title):
         return "Law"
     elif "engineer" in title:
         return "Engineering"
+    elif "bio" in title or "medical" in title:
+        return "Biomedical"
     else:
         return "General"
-    
+
+
 def classify_type(title):
     title = title.lower()
 

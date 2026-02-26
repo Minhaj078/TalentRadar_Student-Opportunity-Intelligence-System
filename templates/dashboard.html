@@ -1,26 +1,35 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1 class="page-title">Opportunity Dashboard</h1>
+<h1 class="page-title">TalentRadar Dashboard</h1>
 
 <!-- Stats Section -->
 <div class="stats">
     <h2>🌍 Total Opportunities: {{ total_count }}</h2>
-    <p>🎓 Universities Covered: {{ total_universities }}</p>
+    <p>📡 Sources Covered: {{ total_universities }}</p>
 </div>
 
-<!-- Filter Section -->
-<div class="filter-section">
-    <form method="get">
-        <select name="domain">
-            <option value="">All Domains</option>
-            <option value="AI">AI</option>
-            <option value="Law">Law</option>
-            <option value="Engineering">Engineering</option>
-            <option value="General">General</option>
-        </select>
-        <button type="submit">Filter</button>
-    </form>
+<!-- Type Tabs -->
+<div class="tabs">
+    <a href="{% url 'dashboard' %}" 
+       class="{% if not active_type %}active-tab{% endif %}">
+        All
+    </a>
+
+    <a href="?type=Hackathon"
+       class="{% if active_type == 'Hackathon' %}active-tab{% endif %}">
+        Hackathons
+    </a>
+
+    <a href="?type=Internship"
+       class="{% if active_type == 'Internship' %}active-tab{% endif %}">
+        Internships
+    </a>
+
+    <a href="?type=Research"
+       class="{% if active_type == 'Research' %}active-tab{% endif %}">
+        Research
+    </a>
 </div>
 
 <!-- Opportunity Cards -->
@@ -28,9 +37,22 @@
     {% for opp in opportunities %}
         <div class="card">
             <h3>{{ opp.title }}</h3>
-            <p><strong>University:</strong> {{ opp.university }}</p>
+
+            <p><strong>Source:</strong> {{ opp.source }}</p>
+            <p><strong>Type:</strong> {{ opp.type }}</p>
+
             <p>{{ opp.description }}</p>
-            <a href="{% url 'apply_opportunity' opp.id %}">Apply</a>
+
+            <div class="card-buttons">
+                <a class="apply-btn" href="{{ opp.link }}" target="_blank">
+                    View Details
+                </a>
+
+                <a class="apply-btn secondary-btn"
+                   href="{% url 'apply_opportunity' opp.id %}">
+                    Apply
+                </a>
+            </div>
         </div>
     {% empty %}
         <p style="text-align:center;">No opportunities available.</p>
@@ -38,7 +60,7 @@
 </div>
 
 <div style="text-align:center; margin: 30px;">
-    <a href="/leaderboard/">View Leaderboard →</a>
+    <a href="{% url 'leaderboard' %}">View Leaderboard →</a>
 </div>
 
 {% endblock %}

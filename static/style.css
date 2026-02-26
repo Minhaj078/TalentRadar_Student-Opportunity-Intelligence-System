@@ -225,3 +225,55 @@ input, select, textarea {
 .leader-card:nth-child(3) {
     border: 2px solid #cd7f32;
 }
+
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 25px 0;
+}
+
+.tabs a {
+    padding: 8px 18px;
+    background: #1f2937;
+    color: white;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.tabs a:hover {
+    background: #4f46e5;
+}
+
+.active-tab {
+    background: #4f46e5 !important;
+}
+
+.card-buttons {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.apply-btn {
+    padding: 8px 15px;
+    background: #4f46e5;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.apply-btn:hover {
+    background: #6366f1;
+}
+
+.secondary-btn {
+    background: #10b981;
+}
+
+.secondary-btn:hover {
+    background: #059669;
+}

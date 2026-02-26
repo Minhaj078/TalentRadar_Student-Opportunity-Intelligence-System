@@ -17,12 +17,12 @@ class StudentProfile(models.Model):
             self.research_papers * 25 +
             self.coding_rating / 100
         )
-
 class Opportunity(models.Model):
-    title = models.CharField(max_length=200)
-    description = models.TextField()
-    university = models.CharField(max_length=100, default="Unknown")
-    domain = models.CharField(max_length=100)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    source = models.CharField(max_length=100)
+    organization = models.CharField(max_length=100, default="Global")
+    domain = models.CharField(max_length=100, default="General")
     link = models.URLField()
 
     TYPE_CHOICES = [
@@ -33,14 +33,10 @@ class Opportunity(models.Model):
         ('General', 'General'),
     ]
 
-    type = models.CharField(
-        max_length=20,
-        choices=TYPE_CHOICES,
-        default='General'
-    )
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='General')
 
     def __str__(self):
-        return f"{self.title} - {self.university}"
+        return f"{self.title} - {self.organization}"
 
 
 from django.contrib.auth.models import User

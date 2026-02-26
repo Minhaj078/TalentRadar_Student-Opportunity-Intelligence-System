@@ -1,9 +1,13 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate, logout
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import RegisterForm, ProfileForm
-from .models import StudentProfile, Opportunity
-from .utils import real_scraper
+from .models import StudentProfile, Opportunity, Application
+
+
+# =========================
+# AUTH VIEWS
+# =========================
 
 def register_view(request):
     if request.method == "POST":
@@ -12,27 +16,34 @@ def register_view(request):
             user = form.save()
             user.set_password(user.password)
             user.save()
-            StudentProfile.objects.create(user=user, domain="AI")
+            StudentProfile.objects.create(user=user, domain="General")
             return redirect('login')
     else:
         form = RegisterForm()
+
     return render(request, 'register.html', {'form': form})
+
 
 def login_view(request):
     form = AuthenticationForm(request, data=request.POST or None)
+
     if request.method == "POST":
         if form.is_valid():
             user = form.get_user()
             login(request, user)
             return redirect('dashboard')
+
     return render(request, 'login.html', {'form': form})
+
 
 def logout_view(request):
     logout(request)
     return redirect('login')
 
-from django.shortcuts import render, redirect
-from .models import Opportunity, StudentProfile
+
+# =========================
+# DASHBOARD
+# =========================
 
 def dashboard(request):
     if not request.user.is_authenticated:
@@ -40,30 +51,38 @@ def dashboard(request):
 
     profile, created = StudentProfile.objects.get_or_create(
         user=request.user,
-        defaults={'domain': 'AI'}
+        defaults={'domain': 'General'}
     )
 
-    selected_domain = request.GET.get('domain')
+    type_filter = request.GET.get('type')
 
-    if selected_domain:
-        opportunities = Opportunity.objects.filter(domain=selected_domain)
-    else:
-        opportunities = Opportunity.objects.all()
+    opportunities = Opportunity.objects.all()
+
+    if type_filter:
+        opportunities = opportunities.filter(type=type_filter)
+
+    opportunities = opportunities.order_by('-id')
 
     total_count = Opportunity.objects.count()
-    total_universities = Opportunity.objects.values('university').distinct().count()
+    total_universities = Opportunity.objects.values('organization').distinct().count()
 
-    return render(request, 'dashboard.html', {
+    context = {
         'opportunities': opportunities,
         'profile': profile,
         'total_count': total_count,
-        'total_universities': total_universities
-    })
+        'total_universities': total_universities,
+        'active_type': type_filter,
+    }
+
+    return render(request, 'dashboard.html', context)
+
+
+# =========================
+# LEADERBOARD
+# =========================
 
 def leaderboard(request):
     profiles = StudentProfile.objects.all()
-
-    # Sort by score descending
     profiles = sorted(profiles, key=lambda p: p.calculate_score(), reverse=True)
 
     return render(request, 'leaderboard.html', {
@@ -71,7 +90,9 @@ def leaderboard(request):
     })
 
 
-from .forms import ProfileForm
+# =========================
+# PROFILE
+# =========================
 
 def profile_view(request):
     if not request.user.is_authenticated:
@@ -91,10 +112,16 @@ def profile_view(request):
 
     return render(request, 'profile.html', {'form': form})
 
+
+# =========================
+# COMING SOON MODULES
+# =========================
+
 def auto_application(request):
     return render(request, 'coming_soon.html', {
         'title': 'Auto-Application System'
     })
+
 
 def community(request):
     return render(request, 'coming_soon.html', {
@@ -102,38 +129,32 @@ def community(request):
     })
 
 
-from .models import Application, Opportunity
+# =========================
+# APPLY OPPORTUNITY
+# =========================
 
 def apply_opportunity(request, opp_id):
     if not request.user.is_authenticated:
         return redirect('login')
 
-    opportunity = Opportunity.objects.get(id=opp_id)
+    opportunity = get_object_or_404(Opportunity, id=opp_id)
 
-    # Save application if not already applied
-    Application.objects.get_or_create(
+    profile = request.user.studentprofile
+
+    application, created = Application.objects.get_or_create(
         user=request.user,
         opportunity=opportunity
     )
 
-    # Auto increment profile stats based on domain
-    profile = request.user.studentprofile
-
-    application, created = Application.objects.get_or_create(
-    user=request.user,
-    opportunity=opportunity
-)
-
     if created:
-        # Only increase score first time
-        if opportunity.domain == "AI":
+        # Update stats based on TYPE (not domain)
+        if opportunity.type == "Hackathon":
             profile.hackathons += 1
-        elif opportunity.domain == "Engineering":
+        elif opportunity.type == "Internship":
             profile.internships += 1
-        elif opportunity.domain == "Law":
+        elif opportunity.type == "Research":
             profile.research_papers += 1
 
         profile.save()
 
     return redirect(opportunity.link)
-
