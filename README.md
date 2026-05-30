@@ -38,13 +38,13 @@ Whether it's a scholarship deadline, an internship opening, or a hackathon — T
 
 ## ✨ Features
 
-- 🔍 **Opportunity Discovery** — Browse and search curated internships, scholarships, competitions, and programs
-- 🧠 **Intelligence Layer** — Smart filtering and matching based on student profiles and preferences
-- 👤 **Student Profiles** — Personalized dashboards with tracked opportunities and saved listings
-- 📋 **Application Tracking** — Monitor the status of opportunity applications in one place
-- 🏛️ **Admin Panel** — Full Django admin interface for managing opportunities, users, and platform data
-- 📱 **Responsive UI** — Clean, mobile-friendly interface built with HTML, CSS, and JavaScript
-- 🔐 **Authentication** — Secure user registration, login, and session management
+-  **Opportunity Discovery** — Browse and search curated internships, scholarships, competitions, and programs
+-  **Intelligence Layer** — Smart filtering and matching based on student profiles and preferences
+-  **Student Profiles** — Personalized dashboards with tracked opportunities and saved listings
+-  **Application Tracking** — Monitor the status of opportunity applications in one place
+-  **Admin Panel** — Full Django admin interface for managing opportunities, users, and platform data
+-  **Responsive UI** — Clean, mobile-friendly interface built with HTML, CSS, and JavaScript
+-  **Authentication** — Secure user registration, login, and session management
 
 ---
 
